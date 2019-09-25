@@ -35,11 +35,11 @@ export class HomeChildComponent {
           .getEndpointData(
             "https://infinite-lake-80504.herokuapp.com/api/routes/" + routeId
           )
-          .then(x => {
-            this.walkPathCoordinates = x.locations.map(y => ({
-              lat: y.latitude,
-              lng: y.longitude,
-              alt: y.altitude
+          .then(data => {
+            this.walkPathCoordinates = data.locations.map(x => ({
+              lat: x.latitude,
+              lng: x.longitude,
+              alt: x.altitude
             }));
             this.map = this.getMapViewPosition(18);
             if (this.walkPath) {
@@ -70,7 +70,7 @@ export class HomeChildComponent {
       });
   }
 
-  calculateDogSnacks(p1, p2, i) {
+  private calculateDogSnacks(p1: any, p2: any, i: number) {
     let distance = google.maps.geometry.spherical.computeDistanceBetween(
       p1,
       p2
@@ -109,17 +109,7 @@ export class HomeChildComponent {
     }
   }
 
-  getWalkPath() {
-    return new google.maps.Polyline({
-      path: this.walkPathCoordinates,
-      geodesic: true,
-      strokeColor: this.getColors(),
-      strokeOpacity: 1.0,
-      strokeWeight: 2
-    });
-  }
-
-  getMapViewPosition(zoomLevel) {
+  private getMapViewPosition(zoomLevel: number) {
     return new google.maps.Map(document.getElementById("map"), {
       zoom: zoomLevel,
       center: {
@@ -130,7 +120,7 @@ export class HomeChildComponent {
     });
   }
 
-  getColors() {
+  private getColors() {
     return [
       "red",
       "blue",
@@ -146,7 +136,7 @@ export class HomeChildComponent {
     ];
   }
 
-  resetDogProperties() {
+  private resetDogProperties() {
     this.dog = {
       snacks: 0,
       momentum: 0,
