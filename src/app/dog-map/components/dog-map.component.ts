@@ -70,6 +70,7 @@ export class DogMapComponent {
   }
 
   private calculateDogSnacks(p1: any, p2: any, i: number) {
+    // distance in meters according to docs
     let distance = google.maps.geometry.spherical.computeDistanceBetween(
       p1,
       p2
@@ -83,10 +84,15 @@ export class DogMapComponent {
 
     this.dog.downDirection = altitudeLevel < 0 ? true : false;
     // new momentum starts when transition from up to down happens (should not accumulate previous one)
-    if (this.dog.downDirection && this.dog.upDirection) {
+    if (
+      (this.dog.downDirection && this.dog.upDirection) ||
+      (this.dog.upDirection && altitudeLevel === 0)
+    ) {
+      this.dog.upDirection = false;
       this.dog.momentum = 0;
+      console.log("RESET MOMENTUM");
     }
-    
+
     // go down, build momentum
     if (altitudeLevel < 0) {
       this.dog.momentum += distance;
