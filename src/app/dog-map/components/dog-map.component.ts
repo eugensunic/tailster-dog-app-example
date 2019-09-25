@@ -6,10 +6,10 @@ import { filter } from "rxjs/operators";
 declare const google: any;
 
 @Component({
-  selector: "app-home-child",
-  templateUrl: "./home-child.component.html"
+  selector: "app-dog-map",
+  templateUrl: "./dog-map.component.html"
 })
-export class HomeChildComponent {
+export class DogMapComponent {
   map;
   walkPathCoordinates = [];
   walkPath;

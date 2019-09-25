@@ -13,9 +13,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.service
       .getEndpointData("https://infinite-lake-80504.herokuapp.com/api/routes")
-      .then(x => {
-        console.log(x);
-        this.routeNames = x;
-      });
+      .then(data => (this.routeNames = data))
+      .catch(err => console.log(err));
   }
 }

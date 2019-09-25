@@ -2,21 +2,21 @@ import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 
 // containers
-import { HomeChildComponent } from "./home-child/home-child.component";
 import { CommonModule } from "@angular/common";
-import { HomeComponent } from "./home.component";
+import { OverviewComponent } from "./overview.component";
+import { DogMapComponent } from "./components/dog-map.component";
 
 // routes
 export const ROUTES: Routes = [
   {
     path: "",
-    component: HomeComponent,
-    children: [{ path: "", component: HomeChildComponent }]
+    component: OverviewComponent,
+    children: [{ path: "", component: DogMapComponent }]
   }
 ];
 
 @NgModule({
   imports: [CommonModule, RouterModule.forChild(ROUTES)],
-  declarations: [HomeComponent, HomeChildComponent]
+  declarations: [OverviewComponent, DogMapComponent]
 })
-export class HomeModule {}
+export class DogModule {}
