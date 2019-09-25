@@ -13,7 +13,6 @@ export class DogMapComponent {
   map;
   walkPathCoordinates = [];
   walkPath;
-  distance = 0;
   dog = {
     snacks: 0,
     momentum: 0,
@@ -87,7 +86,7 @@ export class DogMapComponent {
     if (this.dog.downDirection && this.dog.upDirection) {
       this.dog.momentum = 0;
     }
-
+    
     // go down, build momentum
     if (altitudeLevel < 0) {
       this.dog.momentum += distance;

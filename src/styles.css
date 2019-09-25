@@ -13,9 +13,9 @@ ol#route-list {
 }
 li {
   font-size: 18px;
-  padding: 10px;
   color: #5a5555;
   font-weight: 600;
+  padding: 10px;
 }
 li:hover {
   cursor: pointer;
@@ -24,8 +24,13 @@ li:hover {
 #map {
   height: 100%;
 }
-#heading {
+#main-heading {
   text-align: center;
   color: #514d4d;
   padding: 15px;
+}
+#walk-heading {
+  font-size: 19px;
+  color: #514d4d;
+  padding: 10px;
 }
