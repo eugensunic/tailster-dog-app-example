@@ -24,3 +24,8 @@ li:hover {
 #map {
   height: 100%;
 }
+#heading {
+  text-align: center;
+  color: #514d4d;
+  padding: 15px;
+}

@@ -6,7 +6,5 @@ import { AppService } from "../app.service";
   templateUrl: "./home.component.html"
 })
 export class HomeComponent implements OnInit {
-  constructor(private service: AppService) {}
-
   ngOnInit() {}
 }

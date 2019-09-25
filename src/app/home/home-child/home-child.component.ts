@@ -1,12 +1,7 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  ChangeDetectorRef
-} from "@angular/core";
+import { Component } from "@angular/core";
 import { ActivatedRoute, Router, NavigationEnd } from "@angular/router";
 import { AppService } from "src/app/app.service";
-import { tap, map, filter } from "rxjs/operators";
+import { filter } from "rxjs/operators";
 
 declare const google: any;
 
@@ -14,8 +9,18 @@ declare const google: any;
   selector: "app-home-child",
   templateUrl: "./home-child.component.html"
 })
-export class HomeChildComponent implements OnInit, AfterViewInit {
-  routes;
+export class HomeChildComponent {
+  map;
+  walkPathCoordinates = [];
+  walkPath;
+  distance = 0;
+  dog = {
+    snacks: 0,
+    momentum: 0,
+    upDirection: false,
+    downDirection: false
+  };
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -24,48 +29,129 @@ export class HomeChildComponent implements OnInit, AfterViewInit {
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(_ => {
+        this.resetDogProperties();
         const routeId = this.route.snapshot.paramMap.get("id");
         this.service
           .getEndpointData(
             "https://infinite-lake-80504.herokuapp.com/api/routes/" + routeId
           )
           .then(x => {
-            console.log(x);
-            this.routes = x;
+            this.walkPathCoordinates = x.locations.map(y => ({
+              lat: y.latitude,
+              lng: y.longitude,
+              alt: y.altitude
+            }));
+            this.map = this.getMapViewPosition(18);
+            if (this.walkPath) {
+              this.walkPath.setMap(null);
+            }
+
+            for (let i = 0; i < this.walkPathCoordinates.length - 1; i++) {
+              const p1 = new google.maps.LatLng(
+                this.walkPathCoordinates[i].lat,
+                this.walkPathCoordinates[i].lng
+              );
+              const p2 = new google.maps.LatLng(
+                this.walkPathCoordinates[i + 1].lat,
+                this.walkPathCoordinates[i + 1].lng
+              );
+
+              this.walkPath = new google.maps.Polyline({
+                path: [p1, p2],
+                strokeColor: this.getColors()[i],
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+                map: this.map
+              });
+              this.calculateDogSnacks(p1, p2, i);
+            }
+            console.log(this.dog.snacks);
           });
       });
   }
 
-  ngOnInit() {}
-  ngAfterViewInit() {
-    const map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 18,
-      center: { lat: 51.51973438454002, lng: -0.1222349703313059 },
-      mapTypeId: "terrain"
-    });
+  calculateDogSnacks(p1, p2, i) {
+    let distance = google.maps.geometry.spherical.computeDistanceBetween(
+      p1,
+      p2
+    );
 
-    const flightPlanCoordinates = [
-      { lat: 51.51973438454002, lng: -0.1222349703313059 },
-      { lat: 51.51975093879879, lng: -0.1222902908922381 },
-      { lat: 51.51968937371999, lng: -0.1225241459907242 },
-      { lat: 51.51955128186523, lng: -0.1227341126651715 },
-      { lat: 51.51940237735539, lng: -0.1229298301042271 }
-    ];
+    // determines UP or DOWN direction
+    const altitudeLevel =
+      this.walkPathCoordinates[i + 1].alt - this.walkPathCoordinates[i].alt;
+    console.log("altitude level is:", altitudeLevel);
+    console.log("distance between two points is:", distance);
 
-    const flightPath = new google.maps.Polyline({
-      path: flightPlanCoordinates,
+    this.dog.downDirection = altitudeLevel < 0 ? true : false;
+    // new momentum starts when transition from up to down happens (should not accumulate previous one)
+    if (this.dog.downDirection && this.dog.upDirection) {
+      this.dog.momentum = 0;
+    }
+
+    // go down, build momentum
+    if (altitudeLevel < 0) {
+      this.dog.momentum += distance;
+      console.log("go-down:", this.dog.momentum);
+    }
+
+    // go up decrease momentum, add snacks
+    if (altitudeLevel > 0) {
+      this.dog.upDirection = true;
+      if (this.dog.momentum) {
+        distance -= this.dog.momentum;
+        // decrease dog momentum
+        this.dog.momentum = distance > 0 ? 0 : this.dog.momentum * -1;
+        console.log("was dog down direction previously:", distance);
+      }
+
+      this.dog.snacks += distance <= 0 ? distance * -1 : distance;
+      console.log("goUp-Snacks value:", this.dog.snacks);
+    }
+  }
+
+  getWalkPath() {
+    return new google.maps.Polyline({
+      path: this.walkPathCoordinates,
       geodesic: true,
-      strokeColor: "#FF0000",
+      strokeColor: this.getColors(),
       strokeOpacity: 1.0,
       strokeWeight: 2
     });
+  }
 
-    flightPath.setMap(map);
-    var p1 = new google.maps.LatLng(51.51973438454002, -0.1222349703313059);
-    var p2 = new google.maps.LatLng(51.51940237735539, -0.1229298301042271);
-    const distance = google.maps.geometry.spherical
-      .computeDistanceBetween(p1, p2)
-      .toFixed(2);
-    console.log("distance", distance);
+  getMapViewPosition(zoomLevel) {
+    return new google.maps.Map(document.getElementById("map"), {
+      zoom: zoomLevel,
+      center: {
+        lat: this.walkPathCoordinates[0].lat,
+        lng: this.walkPathCoordinates[0].lng
+      },
+      mapTypeId: "terrain"
+    });
+  }
+
+  getColors() {
+    return [
+      "red",
+      "blue",
+      "maroon",
+      "purple",
+      "violet",
+      "orange",
+      "black",
+      "yellow",
+      "gray",
+      "gold",
+      "brown"
+    ];
+  }
+
+  resetDogProperties() {
+    this.dog = {
+      snacks: 0,
+      momentum: 0,
+      upDirection: false,
+      downDirection: false
+    };
   }
 }
