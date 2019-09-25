@@ -64,7 +64,6 @@ export class DogMapComponent {
               });
               this.calculateDogSnacks(p1, p2, i);
             }
-            console.log(this.dog.snacks);
           });
       });
   }
@@ -79,8 +78,6 @@ export class DogMapComponent {
     // determines UP or DOWN direction
     const altitudeLevel =
       this.walkPathCoordinates[i + 1].alt - this.walkPathCoordinates[i].alt;
-    console.log("altitude level is:", altitudeLevel);
-    console.log("distance between two points is:", distance);
 
     this.dog.downDirection = altitudeLevel < 0 ? true : false;
     // new momentum starts when transition from up to down happens (should not accumulate previous one)
@@ -90,13 +87,11 @@ export class DogMapComponent {
     ) {
       this.dog.upDirection = false;
       this.dog.momentum = 0;
-      console.log("RESET MOMENTUM");
     }
 
     // go down, build momentum
     if (altitudeLevel < 0) {
       this.dog.momentum += distance;
-      console.log("go-down:", this.dog.momentum);
     }
 
     // go up decrease momentum, add snacks
@@ -106,11 +101,9 @@ export class DogMapComponent {
         distance -= this.dog.momentum;
         // decrease dog momentum
         this.dog.momentum = distance > 0 ? 0 : this.dog.momentum * -1;
-        console.log("was dog down direction previously:", distance);
       }
 
       this.dog.snacks += distance <= 0 ? distance * -1 : distance;
-      console.log("goUp-Snacks value:", this.dog.snacks);
     }
   }
 
