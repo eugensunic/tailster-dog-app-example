@@ -18,3 +18,4 @@ You have to install node.js (latest) in order to run the app
 
 
 
+# tailster-dog-app-example
