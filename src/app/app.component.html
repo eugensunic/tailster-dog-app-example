@@ -1,3 +1,10 @@
 
+<ol>
+  <li *ngFor="let item of routeNames; let i = index">
+    <a routerLink="/view/{{ i + 1 }}" routerLinkActive="active">{{
+      item.name
+    }}</a>
+  </li>
+</ol>
 
 <router-outlet></router-outlet>

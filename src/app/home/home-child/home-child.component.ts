@@ -1,12 +1,40 @@
-import { Component, OnInit, AfterViewInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ChangeDetectorRef
+} from "@angular/core";
+import { ActivatedRoute, Router, NavigationEnd } from "@angular/router";
+import { AppService } from "src/app/app.service";
+import { tap, map, filter } from "rxjs/operators";
+
 declare const google: any;
+
 @Component({
   selector: "app-home-child",
   templateUrl: "./home-child.component.html"
 })
 export class HomeChildComponent implements OnInit, AfterViewInit {
-  constructor(private router: ActivatedRoute) {}
+  routes;
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private service: AppService
+  ) {
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(_ => {
+        const routeId = this.route.snapshot.paramMap.get("id");
+        this.service
+          .getEndpointData(
+            "https://infinite-lake-80504.herokuapp.com/api/routes/" + routeId
+          )
+          .then(x => {
+            console.log(x);
+            this.routes = x;
+          });
+      });
+  }
 
   ngOnInit() {}
   ngAfterViewInit() {
@@ -15,8 +43,6 @@ export class HomeChildComponent implements OnInit, AfterViewInit {
       center: { lat: 51.51973438454002, lng: -0.1222349703313059 },
       mapTypeId: "terrain"
     });
-
-    console.log(this.router.snapshot.paramMap.get("id"));
 
     const flightPlanCoordinates = [
       { lat: 51.51973438454002, lng: -0.1222349703313059 },
