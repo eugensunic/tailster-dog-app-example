@@ -1,0 +1,1 @@
+# tailster-dog-app-example
