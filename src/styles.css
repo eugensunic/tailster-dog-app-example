@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+html,
+body {
+  background: #eff4f9;
+  height: 80%;
+  margin: 0;
+  padding: 0;
+}
+ol#route-list {
+  border: 1px solid grey;
+  border-radius: 3px;
+  width: 100px;
+  margin-left: 15px;
+}
+li {
+  font-size: 18px;
+  padding: 10px;
+  color: #5a5555;
+  font-weight: 600;
+}
+li:hover {
+  cursor: pointer;
+  opacity: 0.5;
+}
+#map {
+  height: 100%;
+}
