@@ -62,48 +62,47 @@ export class DogMapComponent {
                 strokeWeight: 2,
                 map: this.map
               });
-              this.calculateDogSnacks(p1, p2, i);
+
+              this.calculateDogSnacks(i);
             }
           });
       });
   }
 
-  private calculateDogSnacks(p1: any, p2: any, i: number) {
-    // distance in meters according to docs
-    let distance = google.maps.geometry.spherical.computeDistanceBetween(
-      p1,
-      p2
-    );
-
-    // determines UP or DOWN direction
-    const altitudeLevel =
+  private calculateDogSnacks(i: number) {
+    // determines UP or DOWN direction, [m]
+    const altitudeLevelDiff =
       this.walkPathCoordinates[i + 1].alt - this.walkPathCoordinates[i].alt;
 
-    this.dog.downDirection = altitudeLevel < 0 ? true : false;
-    // new momentum starts when transition from up to down happens (should not accumulate previous one)
-    if (
-      (this.dog.downDirection && this.dog.upDirection) ||
-      (this.dog.upDirection && altitudeLevel === 0)
-    ) {
+    this.dog.downDirection = altitudeLevelDiff < 0;
+    const fromDownToUp = this.dog.downDirection && this.dog.upDirection;
+    const fromUpToBase = this.dog.upDirection && altitudeLevelDiff === 0;
+
+    if (fromDownToUp || fromUpToBase) {
       this.dog.upDirection = false;
       this.dog.momentum = 0;
     }
 
     // go down, build momentum
-    if (altitudeLevel < 0) {
-      this.dog.momentum += distance;
+    if (altitudeLevelDiff < 0) {
+      this.dog.momentum += altitudeLevelDiff * -1;
     }
 
     // go up decrease momentum, add snacks
-    if (altitudeLevel > 0) {
+    if (altitudeLevelDiff > 0) {
       this.dog.upDirection = true;
-      if (this.dog.momentum) {
-        distance -= this.dog.momentum;
-        // decrease dog momentum
-        this.dog.momentum = distance > 0 ? 0 : this.dog.momentum * -1;
+      // no momentum
+      if (this.dog.momentum === 0) {
+        this.dog.snacks += altitudeLevelDiff;
+        return;
       }
-
-      this.dog.snacks += distance <= 0 ? distance * -1 : distance;
+      // accumulated momentum
+      this.dog.momentum -= altitudeLevelDiff;
+      if (this.dog.momentum < 0) {
+        const snackAmount = this.dog.momentum * -1;
+        this.dog.snacks += snackAmount;
+        this.dog.momentum = 0;
+      }
     }
   }
 
